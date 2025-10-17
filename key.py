@@ -39,7 +39,7 @@ class Key(Button):
     def update(self): 
         val = self.pin.value()
         self.isLongPressed = 0
-        self.isDoubleClick = 0
+        # self.isDoubleClick = 0
         # 抖动区
         if val^self.last:
             self.last = val
@@ -52,6 +52,7 @@ class Key(Button):
             self.isDown = not self.last
             self.tail -= 1
             self.trig = self.isDown
+            self.isDoubleClick = 0
         # 长按判断
         if self.trig and time.ticks_diff(time.ticks_ms(),self.tick) > 800:
             self.isLongPressed = 1
