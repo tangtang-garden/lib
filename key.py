@@ -27,43 +27,45 @@ class Button:
             self.isPressed = self.last * self.isDown
             self.isDown = not self.last
             self.tail -= 1
-class Key(Button):
-    def __init__(self,pin,debounce=20,long_ms=800,double_ms=300):
+class Switch(Button):
+    def __init__(self,pin,debounce = 20,long_ms = 800,double_ms = 300):
         super().__init__(pin,debounce)
-        self.long_ms = long_ms
-        self.double_ms = double_ms
-        self.trig = 0
         self.isLongPressed = 0
-        self.clickTick = 0
         self.isDoubleClick = 0
-    def update(self): 
+        self.clickTick = 0
+        self.clickCount = 0
+        self.long_ms   = long_ms
+        self.double_ms = double_ms
+        self.trig = 1
+    def update(self):
         val = self.pin.value()
-        self.isLongPressed = 0
-        # self.isDoubleClick = 0
-        # 抖动区
+        self.isPressed = 0
+        self.isDoubleClick = 0
+        self.isDown = not self.last
         if val^self.last:
             self.last = val
             self.tick = time.ticks_ms()
-            self.tail = 2
+            self.tail = 1
+            self.trig = 1
             return
-        # 稳定区前2个周期
-        if self.tail and time.ticks_diff(time.ticks_ms(),self.tick) > self.db:
-            self.isPressed = self.last * self.isDown
-            self.isDown = not self.last
-            self.tail -= 1
-            self.trig = self.isDown
-            self.isDoubleClick = 0
-        # 长按判断
-        if self.trig and time.ticks_diff(time.ticks_ms(),self.tick) > 800:
-            self.isLongPressed = 1
-            self.trig = False
-            return
-        # 双击判断
-        if self.isPressed :
-            if time.ticks_diff(time.ticks_ms(),self.clickTick) < 300:
-                self.isDoubleClick = 1
+        if not self.last and time.ticks_diff(time.ticks_ms(),self.tick) > self.db:
+            self.isLongPressed = 0
+            if self.tail and time.ticks_diff(time.ticks_ms(),self.tick) > 800:
+                self.isLongPressed = 1
+                self.clickCount = 0
+                self.tail = 0
                 return
-            self.clickTick = self.tick
+            if self.trig:
+                self.trig = 0
+                self.clickCount += 1
+                self.clickTick = self.tick
+            if self.clickCount==2:
+                self.isDoubleClick = 1
+                self.clickCount = 0
+                return
+        if self.clickCount and self.last and time.ticks_diff(time.ticks_ms(),self.clickTick) > 300:
+            self.isPressed = 1
+            self.clickCount = 0
 # if __name__ == "__main__":
 #     btn = Button(22)
 #     num = 0
