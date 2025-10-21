@@ -41,16 +41,16 @@ class Switch(Button):
         val = self.pin.value()
         self.isPressed = 0
         self.isDoubleClick = 0
+        self.isLongPressed = 0
         self.isDown = not self.last
         if val^self.last:
             self.last = val
             self.tick = time.ticks_ms()
-            self.tail = 1
-            self.trig = 1
+            self.tail = 1^val
+            self.trig = 1^val
             return
-        if not self.last and time.ticks_diff(time.ticks_ms(),self.tick) > self.db:
-            self.isLongPressed = 0
-            if self.tail and time.ticks_diff(time.ticks_ms(),self.tick) > 800:
+        if self.tail and time.ticks_diff(time.ticks_ms(),self.tick) > self.db:
+            if time.ticks_diff(time.ticks_ms(),self.tick) > 800:
                 self.isLongPressed = 1
                 self.clickCount = 0
                 self.tail = 0
@@ -67,18 +67,7 @@ class Switch(Button):
             self.isPressed = 1
             self.clickCount = 0
 # if __name__ == "__main__":
-#     btn = Button(22)
-#     num = 0
-#     while 1:
-#         btn.update()
-#         if btn.isDown:
-#             num+=1
-#             print(num)
-#         if btn.isPressed:print("ispressed")
-#         time.sleep_ms(1)
-
-# if __name__ == "__main__":
-#     key = Key(22)
+#     key = Switch(22)
 #     num = 0
 #     while 1:
 #         key.update()
