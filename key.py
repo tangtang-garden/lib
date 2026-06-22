@@ -7,7 +7,7 @@ import time
 time.sleep(0.1) # Wait for USB to become ready
 print("Hello, Pi Pico!")
 from machine import Pin
-class Button:
+class Key:
     def __init__(self,pin,debounce=20):
         self.pin = Pin(pin,Pin.IN,Pin.PULL_UP)
         self.db   = debounce
@@ -27,7 +27,7 @@ class Button:
             self.isPressed = self.last * self.isDown
             self.isDown = not self.last
             self.tail -= 1
-class Switch(Button):
+class Button(Key):
     def __init__(self,pin,debounce = 20,long_ms = 800,double_ms = 300):
         super().__init__(pin,debounce)
         self.isLongPressed = 0
@@ -67,7 +67,7 @@ class Switch(Button):
             self.isPressed = 1
             self.clickCount = 0
 # if __name__ == "__main__":
-#     key = Switch(22)
+#     key = Button(22)
 #     num = 0
 #     while 1:
 #         key.update()
